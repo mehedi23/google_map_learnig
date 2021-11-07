@@ -18,22 +18,37 @@
         <div class="card_map">
 
             <div class="card">
-                <form class="card-form">
+                <div class="card-form">
                     <div class="input">
                         <input type="text" placeholder="" id="first_location" class="input-field" required />
                         <label class="input-label">First Location</label>
                     </div>
                     <div class="input">
-                        <input type="text" placeholder="" id="second_input" class="input-field" required />
+                        <input type="text" placeholder="" id="second_location" class="input-field" required />
                         <label class="input-label">Second Location</label>
                     </div>
+                    <div class="select-input">
+                        <span>Travel Modes</span>
+                        <select class="select-field" id="travel_model_val">
+                            <option value="DRIVING">Driving</option>
+                            <option value="WALKING">Walking</option>
+                            <option value="BICYCLING">Bicycling</option>
+                            <option value="TRANSIT">Transit</option>
+                        </select>
+                    </div>
+
                     <div class="action">
                         <button class="action-button">Get started</button>
                     </div>
-                </form>
+                </div>
 
                 <div class="card-info">
-                    <p>Github <a href="https://github.com/mehedi23">mehedi23</a></p>
+                    <p>
+                        Github
+                        <a href="https://github.com/mehedi23/google_map_learning" target="_blank">
+                            mehedi23/google_map_learning
+                        </a>
+                    </p>
                 </div>
             </div>
 
@@ -48,10 +63,7 @@
 
 
     <script src="index.js"></script>
-    <script
-        src="https://maps.googleapis.com/maps/api/js?key=**&libraries=places&callback=initMap"
-        async>
-    </script>
+    <script src="google.map.js" async></script>
 </body>
 
 </html>

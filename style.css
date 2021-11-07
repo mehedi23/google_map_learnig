@@ -5,6 +5,7 @@
     padding: 0;
     margin: 0;
     box-sizing: border-box;
+    outline: 0;
 }
 
 
@@ -56,11 +57,16 @@ input {
     padding: 2rem 1rem 0;
 }
 
-.input {
+.input,
+.select-input {
     display: flex;
     flex-direction: column-reverse;
     position: relative;
     padding-top: 1.5rem;
+}
+
+.select-input{
+    flex-direction: column;
 }
 
 .input+.input {
@@ -74,7 +80,12 @@ input {
     transition: 0.25s ease;
 }
 
-.input-field {
+.select-input span{
+    color: #6658d3;
+}
+
+.input-field,
+.select-field {
     border: 0;
     z-index: 1;
     background-color: transparent;
@@ -82,6 +93,10 @@ input {
     font: inherit;
     font-size: 1.125rem;
     padding: 0.25rem 0;
+}
+
+.select-field{
+    border-bottom-color: #6658d3;
 }
 
 .input-field:focus,
@@ -110,6 +125,13 @@ input {
     border-radius: 6px;
     color: #fff;
     border: 0;
+    cursor: pointer;
+    transition: background-color .5s;
+    margin-bottom: 50px;
+}
+
+.action-button:hover{
+    background-color: #5648b9;
 }
 
 .action-button:focus {
