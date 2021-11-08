@@ -142,6 +142,7 @@ function geocode_recording(latLng) {
         })
         .then((response) => {
             if (!click_1st) {
+                console.log(response.results[0].formatted_address)
                 click_1st = response.results[0].formatted_address;
                 first_location.value = response.results[0].formatted_address;
             } else {
@@ -181,12 +182,19 @@ function the_routes(directionsService, directionsRenderer, first, second) {
             response_map_display.innerText = `${res_info.start_address} to ${res_info.end_address} d ${res_info.distance.text}les t ${res_info.duration.text}`;
             
         })
-        .catch((e) => {
+        .catch(() => {
             if (!success_first_distance) {
+                custom_markers_array[0].setMap(null);
                 custom_markers_array[1].setMap(null);
-                custom_markers_array.splice(1, 1);
+
+                while (custom_markers_array.length) {
+                    custom_markers_array.pop();
+                };
+
+                click_1st = null;
                 click_2nd = null;
                 second_location.value = null;
+                first_location.value = null;
             } else {
                 if( click_1st !== last_time_start_address){
                     click_1st = last_time_start_address;
