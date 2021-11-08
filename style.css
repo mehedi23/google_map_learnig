@@ -159,8 +159,8 @@ input {
 }
 
 
-#error{
+#response_map{
     min-height: 50px;
-    color: #c05858;
+    color: #8597a3;
     text-align: center;
 }

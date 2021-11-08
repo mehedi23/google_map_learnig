@@ -6,16 +6,19 @@ var bounds;
 var infoWindow;
 var click_1st = null;
 var click_2nd = null;
+var last_time_start_address = null;
+var last_time_end_address = null;
+var success_first_distance = false;
 var directionsService;
 var directionsRenderer;
-var custom_markers_array = [];
+const custom_markers_array = [];
 const labels = "AB";
 
 var action_btn = document.querySelector('.action-button');
 var travel_model = document.getElementById('travel_model_val').value;
 var first_location = document.getElementById("first_location");
 var second_location = document.getElementById("second_location");
-var error_show = document.getElementById("error")
+var response_map_display = document.getElementById("response_map")
 
 
 
@@ -23,7 +26,7 @@ var error_show = document.getElementById("error")
 
 function initMap() {
     // map init
-    
+
     map = new google.maps.Map(document.getElementById("map"), {
         zoom: 7,
         center: {
@@ -43,6 +46,19 @@ function initMap() {
         map
     });
     directionsRenderer.setMap(map);
+
+    directionsRenderer.addListener("directions_changed", function () {
+        const directions = directionsRenderer.getDirections();
+        var res_info = directions.routes[0].legs[0];
+        first_location.value = res_info.start_address;
+        second_location.value = res_info.end_address;
+        click_1st = res_info.start_address;
+        click_2nd = res_info.end_address;
+        last_time_start_address = res_info.start_address;
+        last_time_end_address = res_info.end_address;
+
+        response_map_display.innerText = `${res_info.start_address} to ${res_info.end_address} d ${res_info.distance.text}les t ${res_info.duration.text}`;
+    });
 
     search_box();
 
@@ -94,14 +110,14 @@ function search_box() {
 
     searchBox_1.addListener("places_changed", () => {
         const places = searchBox_1.getPlaces();
-        map_bounce_to(places);
+        !success_first_distance && map_bounce_to(places);
         click_1st = places[0].formatted_address;
         click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
     });
 
     searchBox_2.addListener("places_changed", () => {
         const places = searchBox_2.getPlaces();
-        map_bounce_to(places);
+        !success_first_distance && map_bounce_to(places);
         click_2nd = places[0].formatted_address;
         click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
     });
@@ -156,15 +172,32 @@ function the_routes(directionsService, directionsRenderer, first, second) {
             custom_markers_array[0].setMap(null);
             custom_markers_array[1].setMap(null);
             directionsRenderer.setDirections(response);
-            error_show.innerText = ''
+            success_first_distance = true;
+
+            var res_info = response.routes[0].legs[0];
+            last_time_start_address = res_info.start_address;
+            last_time_end_address = res_info.end_address;
+            
+            response_map_display.innerText = `${res_info.start_address} to ${res_info.end_address} d ${res_info.distance.text}les t ${res_info.duration.text}`;
+            
         })
         .catch((e) => {
-            custom_markers_array[1].setMap(null);
-            custom_markers_array.splice(1, 1);
-            click_2nd = null;
-            second_location.value = null;
+            if (!success_first_distance) {
+                custom_markers_array[1].setMap(null);
+                custom_markers_array.splice(1, 1);
+                click_2nd = null;
+                second_location.value = null;
+            } else {
+                if( click_1st !== last_time_start_address){
+                    click_1st = last_time_start_address;
+                    first_location.value = last_time_start_address;
+                };
+                if( click_2nd !== last_time_end_address){
+                    click_2nd = last_time_end_address;
+                    second_location.value = last_time_end_address;
+                };
+            };
 
-            error_show.innerText = 'Sorry, we could not calculate the directions'
-            console.log("Directions request failed due to " + e)
+            response_map_display.innerText = 'Sorry, we could not calculate the directions';
         });
 };
