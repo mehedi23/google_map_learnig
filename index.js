@@ -9,13 +9,13 @@ var click_2nd = null;
 var directionsService;
 var directionsRenderer;
 var custom_markers_array = [];
-const labels = "AB"
+const labels = "AB";
 
 var action_btn = document.querySelector('.action-button');
-var first_input = document.getElementById("first_location");
 var travel_model = document.getElementById('travel_model_val').value;
 var first_location = document.getElementById("first_location");
 var second_location = document.getElementById("second_location");
+var error_show = document.getElementById("error")
 
 
 
@@ -94,14 +94,16 @@ function search_box() {
 
     searchBox_1.addListener("places_changed", () => {
         const places = searchBox_1.getPlaces();
-        click_1st = places[0].formatted_address;
         map_bounce_to(places);
+        click_1st = places[0].formatted_address;
+        click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
     });
 
     searchBox_2.addListener("places_changed", () => {
         const places = searchBox_2.getPlaces();
-        click_2nd = places[0].formatted_address;
         map_bounce_to(places);
+        click_2nd = places[0].formatted_address;
+        click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
     });
 };
 
@@ -114,7 +116,6 @@ function map_bounce_to(place) {
         bounds.extend(place[0].geometry.location);
     };
     map.fitBounds(bounds);
-    click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
 };
 
 
@@ -132,7 +133,6 @@ function geocode_recording(latLng) {
                 second_location.value = response.results[0].formatted_address;
                 the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
             };
-
         })
         .catch((e) => {
             console.log(e)
@@ -142,7 +142,6 @@ function geocode_recording(latLng) {
 
 
 function the_routes(directionsService, directionsRenderer, first, second) {
-    console.log(first, second)
     directionsService
         .route({
             origin: {
@@ -157,12 +156,15 @@ function the_routes(directionsService, directionsRenderer, first, second) {
             custom_markers_array[0].setMap(null);
             custom_markers_array[1].setMap(null);
             directionsRenderer.setDirections(response);
+            error_show.innerText = ''
         })
         .catch((e) => {
             custom_markers_array[1].setMap(null);
             custom_markers_array.splice(1, 1);
             click_2nd = null;
             second_location.value = null;
+
+            error_show.innerText = 'Sorry, we could not calculate the directions'
             console.log("Directions request failed due to " + e)
         });
 };

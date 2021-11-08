@@ -157,3 +157,10 @@ input {
     width: 100%;
     height: 600px;
 }
+
+
+#error{
+    min-height: 50px;
+    color: #c05858;
+    text-align: center;
+}
