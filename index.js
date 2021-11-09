@@ -4,6 +4,7 @@ var map;
 var geocoder;
 var bounds;
 var infoWindow;
+var open_marker;
 var click_1st = null;
 var click_2nd = null;
 var last_time_start_address = null;
@@ -18,7 +19,11 @@ var action_btn = document.querySelector('.action-button');
 var travel_model = document.getElementById('travel_model_val').value;
 var first_location = document.getElementById("first_location");
 var second_location = document.getElementById("second_location");
-var response_map_display = document.getElementById("response_map")
+var response_map_display = document.getElementById("response_map");
+var open_latLng = {
+    lat: 41.85,
+    lng: -87.65
+};
 
 
 
@@ -29,11 +34,17 @@ function initMap() {
 
     map = new google.maps.Map(document.getElementById("map"), {
         zoom: 7,
-        center: {
-            lat: 41.85,
-            lng: -87.65
-        },
+        center: open_latLng
     });
+
+    open_marker = new google.maps.Marker({
+        position: open_latLng,
+        map,
+        draggable: true,
+        label: labels[0],
+    });
+
+    open_marker.setMap(null);
 
     bounds = new google.maps.LatLngBounds();
     geocoder = new google.maps.Geocoder();
@@ -65,7 +76,7 @@ function initMap() {
     document.getElementById('travel_model_val').addEventListener("change", travel_model_selector);
 
     map.addListener("click", (e) => {
-        custom_mark(e.latLng);
+        custom_markers_array.length < 2 && custom_mark(e.latLng);
         !click_2nd && geocode_recording(e.latLng);
     });
 
@@ -75,6 +86,9 @@ function initMap() {
     };
 
 
+    google.maps.event.addListener(open_marker, 'dragend', function (e) {
+        geocode_recording(e.latLng, true);
+    });
 
     // end init map
 };
@@ -89,18 +103,26 @@ action_btn.addEventListener("click", function () {
 
 
 function custom_mark(latLng) {
-    if (custom_markers_array.length < 2) {
+    if (custom_markers_array.length > 0) {
         const single_markers = new google.maps.Marker({
             position: latLng,
             map: map,
             zoom: 14,
             draggable: true,
-            clickable: true,
-            label: !click_1st ? labels[0] : labels[1],
+            label: labels[1],
         });
 
         custom_markers_array.push(single_markers);
-    };
+    } else {
+        open_latLng = {
+            lat: latLng.lat(),
+            lng: latLng.lng()
+        };
+
+        open_marker.setMap(map);
+        open_marker.setPosition(open_latLng);
+        custom_markers_array.push(open_marker);
+    }
 };
 
 
@@ -135,25 +157,31 @@ function map_bounce_to(place) {
 };
 
 
-function geocode_recording(latLng) {
+function geocode_recording(latLng, drag = false) {
     geocoder
         .geocode({
             location: latLng
         })
         .then((response) => {
-            if (!click_1st) {
-                click_1st = response.results[0].formatted_address;
-                first_location.value = response.results[0].formatted_address;
-            } else {
-                click_2nd = response.results[0].formatted_address;
-                second_location.value = response.results[0].formatted_address;
-                the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
-            };
+            console.log(response)
+            var get_address = response.results[0].formatted_address;
+            !drag && geocode_formatted_address(get_address);
+            drag && (click_1st = first_location.value = get_address);
         })
         .catch((e) => {
             console.log(e)
         });
 };
+
+
+function geocode_formatted_address(the_address) {
+    if (!click_1st) {
+        click_1st = first_location.value = the_address;
+    } else {
+        click_2nd = second_location.value = the_address;
+        the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
+    };
+}
 
 
 
@@ -229,7 +257,7 @@ function empty_input_validation() {
     the_routes(directionsService, directionsRenderer, null, null);
     click_1st = click_2nd = last_time_start_address = last_time_end_address = second_location.value = first_location.value = null;
     success_first_distance = false;
-    
+
     while (custom_markers_array.length) {
         custom_markers_array.pop();
     };
