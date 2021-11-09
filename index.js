@@ -180,7 +180,9 @@ function the_routes(directionsService, directionsRenderer, first, second) {
             last_time_start_address = res_info.start_address;
             last_time_end_address = res_info.end_address;
 
-            response_map_display.innerText = `${res_info.start_address} to ${res_info.end_address} d ${res_info.distance.text}les t ${res_info.duration.text}`;
+            response_map_display.innerHTML = `${res_info.start_address} <b> To </b> ${res_info.end_address} <br/>
+                                                 <b>Distance :</b> ${res_info.distance.text}les <br/> 
+                                                 <b>Travel Time :</b> ${res_info.duration.text}`;
 
         })
         .catch(() => {
@@ -192,10 +194,7 @@ function the_routes(directionsService, directionsRenderer, first, second) {
                     custom_markers_array.pop();
                 };
 
-                click_1st = null;
-                click_2nd = null;
-                second_location.value = null;
-                first_location.value = null;
+                click_1st = click_2nd = second_location.value = first_location.value = null;
             } else {
                 if (click_1st !== last_time_start_address) {
                     click_1st = last_time_start_address;
@@ -207,7 +206,7 @@ function the_routes(directionsService, directionsRenderer, first, second) {
                 };
             };
 
-            response_map_display.innerText = 'Sorry, we could not calculate the directions';
+            response_map_display.innerHTML = 'Sorry, we could not calculate the directions';
         });
 };
 
@@ -228,13 +227,9 @@ second_location.addEventListener('input', function () {
 function empty_input_validation() {
     directionsRenderer.setMap(null);
     the_routes(directionsService, directionsRenderer, null, null);
-    click_1st = null;
-    click_2nd = null;
-    last_time_start_address = null;
-    last_time_end_address = null;
-    second_location.value = null;
-    first_location.value = null;
+    click_1st = click_2nd = last_time_start_address = last_time_end_address = second_location.value = first_location.value = null;
     success_first_distance = false;
+    
     while (custom_markers_array.length) {
         custom_markers_array.pop();
     };
