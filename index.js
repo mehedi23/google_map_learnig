@@ -68,7 +68,9 @@ function initMap() {
         last_time_start_address = res_info.start_address;
         last_time_end_address = res_info.end_address;
 
-        response_map_display.innerText = `${res_info.start_address} to ${res_info.end_address} d ${res_info.distance.text}les t ${res_info.duration.text}`;
+        response_map_display.innerHTML =    `${res_info.start_address} <b> To </b> ${res_info.end_address} <br/>
+                                            <b>Distance :</b> ${res_info.distance.text}les <br/> 
+                                            <b>Travel Time :</b> ${res_info.duration.text}`;
     });
 
     search_box();
@@ -163,7 +165,6 @@ function geocode_recording(latLng, drag = false) {
             location: latLng
         })
         .then((response) => {
-            console.log(response)
             var get_address = response.results[0].formatted_address;
             !drag && geocode_formatted_address(get_address);
             drag && (click_1st = first_location.value = get_address);
