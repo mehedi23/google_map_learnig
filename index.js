@@ -16,6 +16,7 @@ const custom_markers_array = [];
 const labels = "AB";
 
 var action_btn = document.querySelector('.action-button');
+var your_location = document.getElementById('your_location');
 var travel_model = document.getElementById('travel_model_val').value;
 var first_location = document.getElementById("first_location");
 var second_location = document.getElementById("second_location");
@@ -68,7 +69,7 @@ function initMap() {
         last_time_start_address = res_info.start_address;
         last_time_end_address = res_info.end_address;
 
-        response_map_display.innerHTML =    `${res_info.start_address} <b> To </b> ${res_info.end_address} <br/>
+        response_map_display.innerHTML = `${res_info.start_address} <b> To </b> ${res_info.end_address} <br/>
                                             <b>Distance :</b> ${res_info.distance.text}les <br/> 
                                             <b>Travel Time :</b> ${res_info.duration.text}`;
     });
@@ -99,9 +100,6 @@ function initMap() {
 
 
 // functions =============================
-action_btn.addEventListener("click", function () {
-    click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
-});
 
 
 function custom_mark(latLng) {
@@ -134,14 +132,15 @@ function search_box() {
 
     searchBox_1.addListener("places_changed", () => {
         const places = searchBox_1.getPlaces();
-        !success_first_distance && map_bounce_to(places);
+        console.log(places)
+        !success_first_distance && place[0].geometry && map_bounce_to(place[0].geometry);
         click_1st = places[0].formatted_address;
         click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
     });
 
     searchBox_2.addListener("places_changed", () => {
         const places = searchBox_2.getPlaces();
-        !success_first_distance && map_bounce_to(places);
+        !success_first_distance && place[0].geometry && map_bounce_to(place[0].geometry);
         click_2nd = places[0].formatted_address;
         click_1st && click_2nd && the_routes(directionsService, directionsRenderer, click_1st, click_2nd);
     });
@@ -149,11 +148,11 @@ function search_box() {
 
 
 function map_bounce_to(place) {
-    custom_mark(place[0].geometry.location);
-    if (place[0].geometry.viewport) {
-        bounds.union(place[0].geometry.viewport);
+    custom_mark(place.location);
+    if (place.viewport) {
+        bounds.union(place.viewport);
     } else {
-        bounds.extend(place[0].geometry.location);
+        bounds.extend(place.location);
     };
     map.fitBounds(bounds);
 };
@@ -263,3 +262,64 @@ function empty_input_validation() {
         custom_markers_array.pop();
     };
 };
+
+
+your_location.addEventListener('click', function () {
+
+    navigator.geolocation && navigator.geolocation.getCurrentPosition(current_location);
+});
+
+async function current_location(e) {
+    var latLng = {
+        lat: e.coords.latitude,
+        lng: e.coords.longitude
+    }
+    const map_obj = new Get_map_data();
+    var map_address = await map_obj.geocode_address(latLng);
+    first_location.value = click_1st = last_time_start_address = map_address.address;
+    map_bounce_to(map_address.all_data[0].geometry);
+    
+}
+
+action_btn.addEventListener("click", function () {
+    navigator.geolocation && navigator.geolocation.watchPosition(real_time_position, error_position);
+});
+
+function real_time_position(e) {
+    console.log("first", e.coords.latitude, e.coords.longitude)
+    var latLng = {
+        lat : e.coords.latitude,
+        lng : e.coords.longitude
+    }
+
+    
+}
+
+function error_position(e) {
+    console.log("error", e)
+}
+
+
+// map oop
+function Get_map_data() {
+    this.the_address = null;
+    this.the_latLng = null;
+    
+    this.geocode_address = async function (el) {
+        var _geocode = await geocoder.geocode({
+            location: typeof (el) == "object" ? el : null,
+            address: typeof (el) == "string" ? el : null
+        });
+
+        var _geocode_data = {
+            latLng: await _geocode.results[0].geometry.location,
+            address: await _geocode.results[0].formatted_address,
+            all_data : await _geocode.results
+        };
+
+        this.the_address = _geocode_data.address;
+        this.the_latLng = _geocode_data.latLng;
+
+        return _geocode_data;
+    };
+}

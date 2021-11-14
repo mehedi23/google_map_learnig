@@ -115,7 +115,8 @@ input {
     margin-top: 2rem;
 }
 
-.action-button {
+.action-button,
+#your_location {
     font: inherit;
     font-size: 1.25rem;
     padding: 8px;
@@ -128,6 +129,12 @@ input {
     cursor: pointer;
     transition: background-color .5s;
     margin-bottom: 50px;
+}
+
+#your_location{
+    width: max-content;
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .action-button:hover{
@@ -163,4 +170,15 @@ input {
     min-height: 50px;
     color: #8597a3;
     text-align: center;
+}
+
+
+@media screen and (max-width:800px) {
+    .card_map{
+        flex-direction: column;
+    }
+
+    body{
+        padding: 10px;
+    }
 }
